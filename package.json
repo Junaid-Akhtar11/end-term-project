@@ -6,6 +6,7 @@
     "start:server": "node server/server.js",
     "start:client": "npm --prefix client run dev",
     "build:client": "npm --prefix client run build",
+    "test": "NODE_PATH=./server/node_modules node tests/verifyAll.js",
     "install:all": "npm --prefix server install && npm --prefix client install",
     "dev": "node -e \"console.log('Run npm run start:server and npm run start:client concurrently')\""
   },
