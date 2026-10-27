@@ -4,6 +4,7 @@ const cors = require('cors');
 const { WebSocketServer } = require('ws');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 require('dotenv').config();
 
 const { db, initDatabase } = require('./database');
@@ -19,6 +20,10 @@ const wss = new WebSocketServer({ server });
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve built frontend assets
+const clientDistPath = path.join(__dirname, '../client/dist');
+app.use(express.static(clientDistPath));
 
 // Real-Time WebSocket Broadcasting
 const clients = new Set();
@@ -499,6 +504,14 @@ app.get('/api/metrics/summary', (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Fallback middleware for Single Page Application
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api')) {
+    return res.sendFile(path.join(clientDistPath, 'index.html'));
+  }
+  next();
 });
 
 const PORT = process.env.PORT || 4000;
