@@ -29,7 +29,15 @@ export default function LoginModal({ isOpen, onClose, onAuthSuccess }) {
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      let data = {};
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text || `Server responded with status ${res.status}`);
+      }
+
       if (!res.ok) throw new Error(data.error || 'Authentication failed');
 
       onAuthSuccess(data.user, data.token);
