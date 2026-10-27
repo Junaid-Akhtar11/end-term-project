@@ -1,8 +1,11 @@
 // Configuration for backend API and WebSocket endpoints
-// In local development, falls back to relative paths or localhost
-// When deployed on Vercel, reads VITE_API_URL (e.g., https://devpulse-api.onrender.com)
+// Reads VITE_API_URL or defaults to the production Render backend when hosted on Vercel
 
-const envApiUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/+$/, '') : '';
+const RENDER_PROD_URL = 'https://end-term-project-yx5p.onrender.com';
+
+const envApiUrl = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL.replace(/\/+$/, '') 
+  : (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? RENDER_PROD_URL : '');
 
 export const API_BASE_URL = envApiUrl;
 
