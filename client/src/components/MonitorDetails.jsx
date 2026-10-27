@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Play, Activity, Clock, Shield, AlertTriangle, CheckCircle, ArrowLeft, Terminal } from 'lucide-react';
+import { getApiUrl } from '../config';
 
 export default function MonitorDetails({ monitorId, onBack, onTriggerCheck }) {
   const [data, setData] = useState(null);
@@ -9,7 +10,7 @@ export default function MonitorDetails({ monitorId, onBack, onTriggerCheck }) {
 
   const loadDetails = async () => {
     try {
-      const res = await fetch(`/api/monitors/${monitorId}`);
+      const res = await fetch(getApiUrl(`/api/monitors/${monitorId}`));
       if (!res.ok) throw new Error('Failed to fetch monitor details');
       const json = await res.json();
       setData(json);

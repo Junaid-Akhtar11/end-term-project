@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Radio, Plus, Copy, Check, Terminal, Send, ArrowRight } from 'lucide-react';
+import { getApiUrl } from '../config';
 
 export default function WebhookInboxesView({ inboxes, onCreateInbox, selectedInboxId, onSelectInbox }) {
   const [copiedToken, setCopiedToken] = useState(null);
@@ -20,7 +21,7 @@ export default function WebhookInboxesView({ inboxes, onCreateInbox, selectedInb
   const loadDeliveries = async (inboxId) => {
     try {
       const token = localStorage.getItem('devpulse_token');
-      const res = await fetch(`/api/webhooks/inboxes/${inboxId}/deliveries`, {
+      const res = await fetch(getApiUrl(`/api/webhooks/inboxes/${inboxId}/deliveries`), {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       if (res.ok) {
@@ -52,7 +53,7 @@ export default function WebhookInboxesView({ inboxes, onCreateInbox, selectedInb
         parsed = { raw: testPayload };
       }
 
-      await fetch(`/api/webhooks/capture/${activeInbox.token}`, {
+      await fetch(getApiUrl(`/api/webhooks/capture/${activeInbox.token}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(parsed)
@@ -111,7 +112,7 @@ export default function WebhookInboxesView({ inboxes, onCreateInbox, selectedInb
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {inboxes.map(inbox => {
               const isSelected = activeInbox?.id === inbox.id;
-              const webhookUrl = `${window.location.origin}/api/webhooks/capture/${inbox.token}`;
+              const webhookUrl = getApiUrl(`/api/webhooks/capture/${inbox.token}`);
 
               return (
                 <div

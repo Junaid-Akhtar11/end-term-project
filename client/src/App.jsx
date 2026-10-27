@@ -7,6 +7,7 @@ import CreateMonitorModal from './components/CreateMonitorModal';
 import IncidentsView from './components/IncidentsView';
 import WebhookInboxesView from './components/WebhookInboxesView';
 import LoginModal from './components/LoginModal';
+import { getApiUrl, getWsUrl } from './config';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('monitors'); // 'monitors', 'incidents', 'webhooks'
@@ -26,7 +27,7 @@ export default function App() {
   useEffect(() => {
     const savedToken = localStorage.getItem('devpulse_token');
     if (savedToken) {
-      fetch('/api/auth/me', {
+      fetch(getApiUrl('/api/auth/me'), {
         headers: { Authorization: `Bearer ${savedToken}` }
       })
         .then(res => res.ok ? res.json() : null)
@@ -41,9 +42,9 @@ export default function App() {
   const fetchAllData = useCallback(async () => {
     try {
       const [sumRes, monRes, incRes] = await Promise.all([
-        fetch('/api/metrics/summary'),
-        fetch('/api/monitors'),
-        fetch('/api/incidents')
+        fetch(getApiUrl('/api/metrics/summary')),
+        fetch(getApiUrl('/api/monitors')),
+        fetch(getApiUrl('/api/incidents'))
       ]);
 
       if (sumRes.ok) setSummary(await sumRes.json());
@@ -64,7 +65,7 @@ export default function App() {
     const token = localStorage.getItem('devpulse_token');
     if (!token) return;
     try {
-      const res = await fetch('/api/webhooks/inboxes', {
+      const res = await fetch(getApiUrl('/api/webhooks/inboxes'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -88,8 +89,7 @@ export default function App() {
 
   // WebSocket live feed
   useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    const wsUrl = getWsUrl();
     let ws = null;
 
     function connect() {
@@ -133,7 +133,7 @@ export default function App() {
 
   const handleTriggerCheck = async (monitorId) => {
     const token = localStorage.getItem('devpulse_token');
-    await fetch(`/api/monitors/${monitorId}/trigger`, {
+    await fetch(getApiUrl(`/api/monitors/${monitorId}/trigger`), {
       method: 'POST',
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
@@ -147,7 +147,7 @@ export default function App() {
       setIsLoginModalOpen(true);
       return;
     }
-    await fetch(`/api/monitors/${monitorId}`, {
+    await fetch(getApiUrl(`/api/monitors/${monitorId}`), {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -162,7 +162,7 @@ export default function App() {
       setIsLoginModalOpen(true);
       return;
     }
-    const res = await fetch('/api/monitors', {
+    const res = await fetch(getApiUrl('/api/monitors'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ export default function App() {
       setIsLoginModalOpen(true);
       return;
     }
-    const res = await fetch('/api/webhooks/inboxes', {
+    const res = await fetch(getApiUrl('/api/webhooks/inboxes'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ export default function App() {
 
   const handleToggleChaos = async () => {
     try {
-      const res = await fetch('/api/mock/toggle-chaos', { method: 'POST' });
+      const res = await fetch(getApiUrl('/api/mock/toggle-chaos'), { method: 'POST' });
       if (res.ok) {
         const json = await res.json();
         setChaosActive(json.mockFailing);
